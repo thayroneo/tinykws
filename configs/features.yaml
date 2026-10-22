@@ -1,0 +1,18 @@
+﻿# Parâmetros versionados do MFCC e balanceamento
+
+seed: 20261022
+sample_rate_hz: 16000
+duration_seconds: 1.0
+mfcc:
+  n_mfcc: 13
+  n_mels: 26
+  n_fft: 512
+  win_length: 400
+  hop_length: 400
+  fmin_hz: 20
+  fmax_hz: 8000
+  frames: 40
+balance:
+  train_unknown_max: 4000
+  loss: class_weighted
+  metrics: [accuracy, balanced_accuracy, macro_f1, confusion_matrix]

@@ -1,0 +1,12 @@
+﻿seed: 20261022
+sample_rate_hz: 16000
+duration_seconds: 1.0
+classes:
+  - yes
+  - no
+  - stop
+  - unknown
+  - silence
+unknown_source: speech_commands_other_keywords
+silence_source: generated_from_background_audio
+splits: official_speech_commands

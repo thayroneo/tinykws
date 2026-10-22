@@ -1,0 +1,36 @@
+﻿# VoiceTiny RP2040
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.env
+
+# Dados e artefatos gerados
+/data/raw/*
+/data/processed/*
+/data/manifests/*.jsonl
+/models/*
+/experiments/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/manifests/.gitkeep
+!models/.gitkeep
+!experiments/.gitkeep
+
+# Ferramentas e sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+'
+
+.project/
+docs/*.md
+
+scripts/tests
+
+.project/
+

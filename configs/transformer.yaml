@@ -1,0 +1,15 @@
+architecture: tiny_transformer
+input_shape: [40, 13]
+d_model: 32
+heads: 2
+layers: 1
+ffn_dim: 64
+classes: [yes, no, stop, unknown, silence]
+epochs: 30
+batch_size: 128
+learning_rate: 0.001
+weight_decay: 0.0001
+patience: 8
+seeds: [20261022, 20261023, 20261024]
+selection_metric: validation_balanced_accuracy
+loss: weighted_cross_entropy
