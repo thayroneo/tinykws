@@ -270,6 +270,32 @@ def evaluate_model(
     return metrics, y_true, y_pred
 
 
+def compare_logits(
+    reference: nn.Module,
+    candidate: nn.Module,
+    loader: DataLoader,
+    device: torch.device,
+) -> dict[str, float]:
+    """Compara logits do candidato com o checkpoint FP32 no mesmo split."""
+    reference.eval()
+    candidate.eval()
+    absolute_sum = 0.0
+    element_count = 0
+    maximum = 0.0
+    with torch.inference_mode():
+        for features, _ in loader:
+            reference_logits = reference(features.to(device))
+            candidate_logits = candidate(features.to(device))
+            difference = (candidate_logits - reference_logits).abs()
+            absolute_sum += float(difference.sum().item())
+            element_count += int(difference.numel())
+            maximum = max(maximum, float(difference.max().item()))
+    return {
+        "logit_mae_vs_fp32": absolute_sum / element_count,
+        "logit_max_abs_vs_fp32": maximum,
+    }
+
+
 def variant_storage(
     base: nn.Module,
     name: str,
@@ -462,6 +488,7 @@ def run(args: argparse.Namespace) -> None:
                 "operation_order": "none",
                 "calibration_split": "not_applicable",
                 **{key: fp32_metrics[key] for key in ("accuracy", "balanced_accuracy", "macro_f1", "confusion_matrix", "latency_median_ms", "latency_p95_ms", "latency_us_per_example")},
+                **compare_logits(base_wrapper, base_wrapper, loaders["test"], device),
                 **fp32_storage,
                 "export_file_bytes": fp32_export["artifact_file_bytes"],
                 "checkpoint": str(checkpoint),
@@ -471,6 +498,9 @@ def run(args: argparse.Namespace) -> None:
             int8_wrapper = CompressedModel(baseline, model_name, None, "int8_weight_ptq").to(device)
             int8_metrics, _, _ = evaluate_model(
                 int8_wrapper, loaders["test"], device, repeats=args.repeats
+            )
+            int8_logit_error = compare_logits(
+                base_wrapper, int8_wrapper, loaders["test"], device
             )
             int8_storage = variant_storage(
                 baseline, model_name, None, "int8_weight_ptq", 8
@@ -492,6 +522,7 @@ def run(args: argparse.Namespace) -> None:
                 "operation_order": "quantization",
                 "calibration_split": "train_weights",
                 **{key: int8_metrics[key] for key in ("accuracy", "balanced_accuracy", "macro_f1", "confusion_matrix", "latency_median_ms", "latency_p95_ms", "latency_us_per_example")},
+                **int8_logit_error,
                 **int8_storage,
                 "export_file_bytes": int8_export["artifact_file_bytes"],
                 "checkpoint": str(checkpoint),
@@ -512,6 +543,9 @@ def run(args: argparse.Namespace) -> None:
                     metrics, _, _ = evaluate_model(
                         control_wrapper, loaders["test"], device, repeats=args.repeats
                     )
+                    logit_error = compare_logits(
+                        base_wrapper, control_wrapper, loaders["test"], device
+                    )
                     storage = variant_storage(control, model_name, control_masks, method, 8)
                     exported = export_variant(
                         base_export_dir / f"{method}_{int(sparsity * 100):02d}.npz",
@@ -530,6 +564,7 @@ def run(args: argparse.Namespace) -> None:
                         "operation_order": order,
                         "calibration_split": "train_weights",
                         **{key: metrics[key] for key in ("accuracy", "balanced_accuracy", "macro_f1", "confusion_matrix", "latency_median_ms", "latency_p95_ms", "latency_us_per_example")},
+                        **logit_error,
                         **storage,
                         "export_file_bytes": exported["artifact_file_bytes"],
                         "checkpoint": str(checkpoint),
@@ -557,6 +592,9 @@ def run(args: argparse.Namespace) -> None:
                     ).to(device)
                     metrics, _, _ = evaluate_model(
                         trained_wrapper, loaders["test"], device, repeats=args.repeats
+                    )
+                    logit_error = compare_logits(
+                        base_wrapper, trained_wrapper, loaders["test"], device
                     )
                     storage = variant_storage(trained, model_name, train_masks, method, 8)
                     export_path = base_export_dir / f"{method}_{int(sparsity * 100):02d}.npz"
@@ -587,6 +625,7 @@ def run(args: argparse.Namespace) -> None:
                         "operation_order": order,
                         "calibration_split": "train_weights",
                         **{key: metrics[key] for key in ("accuracy", "balanced_accuracy", "macro_f1", "confusion_matrix", "latency_median_ms", "latency_p95_ms", "latency_us_per_example")},
+                        **logit_error,
                         **storage,
                         "export_file_bytes": exported["artifact_file_bytes"],
                         "checkpoint": str(checkpoint),
