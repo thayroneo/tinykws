@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -54,6 +55,14 @@ def main() -> None:
         output_json = args.output_dir / f"{stem}.json"
         output_wav = args.output_dir / f"{stem}.wav"
         output_raw.write_bytes(raw_path.read_bytes())
+        expected_bytes = int(metadata["sample_count"]) * 2
+        actual_bytes = output_raw.stat().st_size
+        if actual_bytes != expected_bytes:
+            raise RuntimeError(
+                f"Tamanho inesperado: {actual_bytes} bytes; esperado {expected_bytes}"
+            )
+        metadata["raw_bytes"] = actual_bytes
+        metadata["raw_sha256"] = hashlib.sha256(output_raw.read_bytes()).hexdigest()
         metadata["wav_sample_rate_hz"] = int(round(metadata["effective_rate_hz"]))
         output_json.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
         with wave.open(str(output_wav), "wb") as stream:
