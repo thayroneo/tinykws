@@ -1,8 +1,8 @@
-﻿# TinyKWS Lab
+﻿# TinyKWS lab
 
 **Reconhecimento de comandos de voz com TinyML em um microcontrolador de recursos limitados.**
 
-O TinyKWS Lab investiga como executar modelos compactos de aprendizado de máquina diretamente na **BitDogLab**, baseada no **Raspberry Pi Pico W (RP2040)**. A proposta é reconhecer comandos curtos, como *yes*, *no* e *stop*, sem depender de serviços na nuvem durante a inferência.
+O TinyKWS lab investiga como executar modelos compactos de aprendizado de máquina diretamente na **BitDogLab**, baseada no **Raspberry Pi Pico W (RP2040)**. A proposta é reconhecer comandos curtos, como *yes*, *no* e *stop*, sem depender de serviços na nuvem durante a inferência.
 
 ## Pergunta de pesquisa
 
