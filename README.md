@@ -1,8 +1,8 @@
-﻿# VoiceTiny RP2040
+﻿# TinyKWS Lab
 
 **Reconhecimento de comandos de voz com TinyML em um microcontrolador de recursos limitados.**
 
-O VoiceTiny RP2040 investiga como executar modelos compactos de aprendizado de máquina diretamente na **BitDogLab**, baseada no **Raspberry Pi Pico W (RP2040)**. A proposta é reconhecer comandos curtos, como *yes*, *no* e *stop*, sem depender de serviços na nuvem durante a inferência.
+O TinyKWS Lab investiga como executar modelos compactos de aprendizado de máquina diretamente na **BitDogLab**, baseada no **Raspberry Pi Pico W (RP2040)**. A proposta é reconhecer comandos curtos, como *yes*, *no* e *stop*, sem depender de serviços na nuvem durante a inferência.
 
 ## Pergunta de pesquisa
 
@@ -27,6 +27,17 @@ Os resultados serão medidos experimentalmente; eventuais ganhos de compressão 
 ## Tecnologias e plataforma
 
 Python para preparação de dados e treinamento; MicroPython e C/C++ para prototipagem e inferência embarcada; BitDogLab com Raspberry Pi Pico W (RP2040) como plataforma de avaliação.
+
+## Hardware de avaliação
+
+O hardware-alvo é o microcontrolador **RP2040**, usado na BitDogLab/Raspberry Pi Pico W:
+
+- **Processador:** dual-core ARM Cortex-M0+ operando a até 133 MHz ([datasheet do RP2040](https://pip.raspberrypi.com/documents/RP-008371-DS-rp2040-datasheet.pdf), [referência da placa](https://www.eletrogate.com/placa-de-desenvolvimento-rp2040)).
+- **Memória RAM:** 264 KB de SRAM, dividida em seis bancos ([datasheet do RP2040](https://pip.raspberrypi.com/documents/RP-008371-DS-rp2040-datasheet.pdf), [visão geral](https://en.wikipedia.org/wiki/RP2040)).
+- **Memória Flash:** o RP2040 não possui Flash interna; o armazenamento de programa usa memória externa via QSPI. A capacidade da placa depende do módulo utilizado, geralmente entre 2 MB e 16 MB ([referência da placa](https://www.eletrogate.com/placa-de-desenvolvimento-rp2040), [exemplo de descrição](https://www.youtube.com/watch?v=cAcFSxFx5DU)).
+- **Periféricos:** 30 pinos GPIO, sendo 26 multifuncionais; 2 SPI; 2 I²C; 2 UART; 3 entradas ADC externas de 12 bits; 16 canais PWM; USB 1.1 com funções host/device; e máquinas de estados de E/S programáveis (PIO) ([datasheet do RP2040](https://pip.raspberrypi.com/documents/RP-008371-DS-rp2040-datasheet.pdf), [referência da placa](https://www.eletrogate.com/placa-de-desenvolvimento-rp2040), [visão geral](https://en.wikipedia.org/wiki/RP2040)).
+
+As medições de latência, SRAM, Flash e comportamento dos modelos serão feitas na placa. Estimativas produzidas no host não serão apresentadas como medições do RP2040.
 
 ## Referências de base
 
