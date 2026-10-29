@@ -90,7 +90,7 @@ def export(checkpoint: Path, features: Path, output_dir: Path, index: int) -> di
         "operators": ["linear", "reshape_qkv", "scaled_dot_product_attention", "softmax", "residual_add", "layer_norm", "relu", "mean_pool", "linear"],
         "input_shape": [40, 13],
         "attention": {"heads": 2, "head_dim": 16, "scores_shape": [2, 40, 40]},
-        "buffers": {"tokens_fp32": 40 * 32 * 4, "qkv_fp32": 40 * 96 * 4, "scores_fp32": 2 * 40 * 40 * 4, "attention_fp32": 40 * 32 * 4},
+        "buffers": {"tokens_fp32": 40 * 32 * 4, "qkv_fp32": 40 * 96 * 4, "scores_fp32": 2 * 40 * 40 * 4, "attention_fp32": 40 * 32 * 4, "c_workspace_bytes": 5 * 40 * 32 * 4 + 2 * 40 * 40 * 4 + 40 * 64 * 4},
         "weights_bytes": weights_path.stat().st_size - 32,
         "binary_bytes": weights_path.stat().st_size,
         "offsets": offsets,
