@@ -1,6 +1,8 @@
 """FP32 MLP inference for the deterministic T5.1 host comparison."""
 import json
 import struct
+import gc
+import time
 
 
 MAGIC = b"VTKMLP1\0"
@@ -30,6 +32,9 @@ def infer(weights_path="mlp_fp32.bin", input_path="input.f32"):
         b3 = _read_f32(stream, classes)
     with open(input_path, "rb") as stream:
         x = _read_f32(stream, input_dim)
+    gc.collect()
+    mem_before = gc.mem_free()
+    start_us = time.ticks_us()
     h1 = [0.0 for _ in range(hidden1)]
     h2 = [0.0 for _ in range(hidden2)]
     logits = [0.0 for _ in range(classes)]
@@ -51,7 +56,9 @@ def infer(weights_path="mlp_fp32.bin", input_path="input.f32"):
         for col in range(hidden2):
             value += _value(w3, offset + col) * h2[col]
         logits[row] = value
-    result = {"logits": [float(value) for value in logits], "predicted_index": max(range(classes), key=lambda i: logits[i])}
+    latency_us = time.ticks_diff(time.ticks_us(), start_us)
+    mem_after = gc.mem_free()
+    result = {"logits": [float(value) for value in logits], "predicted_index": max(range(classes), key=lambda i: logits[i]), "latency_us": latency_us, "mem_free_before": mem_before, "mem_free_after": mem_after, "weights_bytes": 142380, "input_bytes": 2080}
     print(json.dumps(result))
     return result
 
